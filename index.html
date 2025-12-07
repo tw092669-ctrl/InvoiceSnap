@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>InvoiceSnap - 發票小幫手</title>
+    
+    <!-- PWA / Mobile App Capable Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkludm9pY2VTbmFwIiwKICAic2hvcnRfbmFtZSI6ICJJbnZvaWNlU25hcCIsCiAgInRoZW1lX2NvbG9yIjogIiMwZjE3MmEiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjE3MmEiLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgInNjb3BlIjogIi8iLAogICJzdGFydF91cmwiOiAiLyIsCiAgImljb25zIjogW10KfQ==" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              gray: {
+                850: '#1f2937',
+                900: '#0f172a',
+                950: '#020617',
+              },
+              brand: {
+                400: '#38bdf8', // Neon Blue
+                500: '#0ea5e9',
+                600: '#0284c7',
+                glow: '#38bdf8',
+              },
+              accent: {
+                400: '#a78bfa', // Neon Purple
+                500: '#8b5cf6',
+                600: '#7c3aed',
+              }
+            },
+            boxShadow: {
+              'neon': '0 0 10px rgba(56, 189, 248, 0.5)',
+              'neon-purple': '0 0 10px rgba(139, 92, 246, 0.5)',
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1"
+  }
+}
+</script>
+<style>
+  body {
+    background-color: #0f172a;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+  /* Custom scrollbar for dark theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0f172a; 
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #334155; 
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #475569; 
+  }
+</style>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="text-slate-100 antialiased overscroll-none min-h-screen">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "name": "InvoiceSnap",
+  "description": "Smart handwritten invoice scanner and organizer powered by Gemini AI. Supports 2-part and 3-part Taiwanese invoices.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
