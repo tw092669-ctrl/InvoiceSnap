@@ -26,6 +26,21 @@ The repository includes a GitHub Actions workflow that automatically deploys on 
 
 ### Option 2: Manual Deployment
 
+**Quick Deploy:**
+```bash
+./deploy.sh
+```
+
+**Or step by step:**
+```bash
+# Set environment variable and build
+GITHUB_PAGES=true npm run build:ghpages
+
+# Deploy
+npx gh-pages -d dist
+```
+
+**Alternative using npm script:**
 ```bash
 npm run deploy:ghpages
 ```

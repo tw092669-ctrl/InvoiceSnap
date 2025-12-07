@@ -50,9 +50,21 @@ Build the application:
 npm run build
 ```
 
+Build for GitHub Pages:
+```bash
+GITHUB_PAGES=true npm run build:ghpages
+```
+
 Preview the production build:
 ```bash
 npm run preview
+```
+
+Deploy to GitHub Pages:
+```bash
+./deploy.sh
+# or
+npm run deploy:ghpages
 ```
 
 The built files will be in the `dist/` directory.

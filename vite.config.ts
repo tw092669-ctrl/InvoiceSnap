@@ -5,10 +5,13 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     
-    // Use /InvoiceSnap/ for GitHub Pages, / for local development
-    const base = mode === 'production' && process.env.GITHUB_PAGES === 'true' 
+    // Always use /InvoiceSnap/ for GitHub Pages deployment
+    // Check environment variable set during build
+    const base = process.env.GITHUB_PAGES === 'true' 
       ? '/InvoiceSnap/' 
       : '/';
+    
+    console.log('Building with base path:', base);
     
     return {
       base,

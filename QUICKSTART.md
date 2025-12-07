@@ -22,28 +22,52 @@ All production warnings and errors have been resolved:
 
 ### Option 1: Automatic via GitHub Actions (Recommended)
 
-1. Enable GitHub Pages in repository Settings → Pages
-2. Select "GitHub Actions" as source
-3. Push your code:
+1. **Enable GitHub Pages:**
+   - Go to repository Settings → Pages
+   - Select "GitHub Actions" as source
+
+2. **Push your code:**
+   ```bash
+   git add .
+   git commit -m "Deploy with GitHub Actions"
+   git push
+   ```
+
+3. **Access your app:**
+   - URL: `https://tw092669-ctrl.github.io/InvoiceSnap/`
+   - First deployment takes 2-3 minutes
+
+### Option 2: Manual Deploy (Easiest)
+
+Use the deploy script:
 ```bash
-git add .
-git commit -m "Deploy with GitHub Actions"
-git push
+./deploy.sh
 ```
 
-Live at: `https://tw092669-ctrl.github.io/InvoiceSnap/`
-
-### Option 2: Manual Deploy
+Or use npm:
 ```bash
 npm run deploy:ghpages
 ```
 
-Then enable GitHub Pages in Settings → Pages → select `gh-pages` branch
+**Note:** On Windows, use Git Bash or WSL to run `./deploy.sh`
 
-### Option 3: Other Platforms
+### Option 3: Manual Step-by-Step
 ```bash
+# Build with GitHub Pages configuration
+GITHUB_PAGES=true npm run build:ghpages
+
+# Deploy to gh-pages branch
+npx gh-pages -d dist
+
+# Enable GitHub Pages in Settings → Pages → Source: gh-pages branch
+```
+
+### Option 4: Other Platforms (Vercel, Netlify, etc.)
+```bash
+# Build without GitHub Pages base path
 npm run build
-# Upload the `dist/` folder to any static host
+
+# Upload the `dist/` folder to your hosting platform
 ```
 
 ## Environment Variable
