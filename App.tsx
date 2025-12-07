@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Search, Plus, FileText, ArrowLeft, Upload, LayoutDashboard, List, Settings, ScanLine } from 'lucide-react';
+import { Camera, Search, Plus, FileText, ArrowLeft, Upload, LayoutDashboard, List, Settings as SettingsIcon, ScanLine } from 'lucide-react';
 import { InvoiceData, InvoiceType, createEmptyInvoice } from './types';
 import { InvoiceForm } from './components/InvoiceForm';
 import { Dashboard } from './components/Dashboard';
 import { DataManagement } from './components/DataManagement';
+import { Settings } from './components/Settings';
 import { Button } from './components/Button';
-import { extractInvoiceData } from './services/geminiService';
+import { extractInvoiceData, hasApiKey } from './services/geminiService';
 
-type ViewState = 'list' | 'dashboard' | 'edit' | 'settings';
+type ViewState = 'list' | 'dashboard' | 'edit' | 'settings' | 'data-management';
 
 const App: React.FC = () => {
   // State
@@ -41,6 +42,13 @@ const App: React.FC = () => {
 
   // Handle File Processing
   const processFile = async (file: File) => {
+    // Check if API key is set
+    if (!hasApiKey()) {
+      alert('請先設定 Gemini API Key\n\n點擊右上角設定按鈕來設定您的 API Key');
+      setView('settings');
+      return;
+    }
+
     setIsProcessing(true);
     try {
       const reader = new FileReader();
@@ -56,7 +64,10 @@ const App: React.FC = () => {
           setCurrentInvoice(newInvoice);
           setView('edit');
         } catch (err) {
-          alert("AI 辨識失敗，請重試或手動輸入。\n錯誤: " + (err as Error).message);
+          alert("AI 辨識失敗，請檢查 API Key 或重試。\n錯誤: " + (err as Error).message);
+          if ((err as Error).message.includes('API Key')) {
+            setView('settings');
+          }
           const newInvoice: Partial<InvoiceData> = {
             ...createEmptyInvoice(),
             imageUrl: base64Image,
@@ -142,6 +153,8 @@ const App: React.FC = () => {
       case 'dashboard':
         return <Dashboard invoices={invoices} />;
       case 'settings':
+        return <Settings onClose={() => setView('list')} />;
+      case 'data-management':
         return (
           <DataManagement 
             invoices={invoices} 
@@ -301,7 +314,7 @@ const App: React.FC = () => {
       <header className="fixed top-0 inset-x-0 z-50 bg-gray-900/80 backdrop-blur-xl border-b border-gray-800 shadow-2xl">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {(view === 'edit' || view === 'settings') ? (
+            {(view === 'edit' || view === 'settings' || view === 'data-management') ? (
               <button onClick={() => setView('list')} className="p-2 hover:bg-white/10 rounded-full -ml-2 transition-colors text-gray-300 hover:text-white">
                 <ArrowLeft className="w-5 h-5" />
               </button>
@@ -311,14 +324,14 @@ const App: React.FC = () => {
               </div>
             )}
             <h1 className="text-xl font-bold tracking-tight text-white hidden xs:block font-mono">Invoice<span className="text-brand-400">Snap</span></h1>
-            {(view === 'edit' || view === 'settings') && (
+            {(view === 'edit' || view === 'settings' || view === 'data-management') && (
               <h2 className="text-lg font-bold text-gray-200 sm:hidden">
-                {view === 'settings' ? '資料管理' : '發票明細'}
+                {view === 'settings' ? '設定' : view === 'data-management' ? '資料管理' : '發票明細'}
               </h2>
             )}
           </div>
           
-          {(view !== 'edit' && view !== 'settings') && (
+          {(view !== 'edit' && view !== 'settings' && view !== 'data-management') && (
              <div className="flex items-center gap-2">
                <div className="bg-gray-800/50 p-1 rounded-xl flex items-center mr-2 border border-gray-700/50">
                  <button 
@@ -338,11 +351,19 @@ const App: React.FC = () => {
                </div>
 
                <button 
+                 onClick={() => setView('data-management')}
+                 className="p-2.5 text-gray-400 hover:bg-white/5 hover:text-white rounded-full transition-colors"
+                 title="資料管理"
+               >
+                 <FileText className="w-5 h-5" />
+               </button>
+
+               <button 
                  onClick={() => setView('settings')}
                  className="p-2.5 text-gray-400 hover:bg-white/5 hover:text-white rounded-full transition-colors"
-                 title="設定與備份"
+                 title="設定"
                >
-                 <Settings className="w-5 h-5" />
+                 <SettingsIcon className="w-5 h-5" />
                </button>
 
                <div className="hidden sm:flex gap-3 ml-4">
@@ -381,7 +402,7 @@ const App: React.FC = () => {
       </main>
 
       {/* Mobile Floating Action Buttons - Modern & Floating */}
-      {(view !== 'edit' && view !== 'settings') && (
+      {(view !== 'edit' && view !== 'settings' && view !== 'data-management') && (
         <div className="fixed bottom-8 right-6 flex flex-col gap-4 sm:hidden z-30 items-end">
           <button 
             onClick={handleManualAdd}

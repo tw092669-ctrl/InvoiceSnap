@@ -1,9 +1,57 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { InvoiceData, InvoiceType } from "../types";
 
-// Initialize Gemini Client
-// In a real app, ensure process.env.API_KEY is available.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// API Key management
+let geminiClient: GoogleGenAI | null = null;
+
+// Try to get API key from various sources
+const getApiKey = (): string => {
+  // First try import.meta.env (Vite)
+  if (import.meta.env.VITE_GEMINI_API_KEY) {
+    return import.meta.env.VITE_GEMINI_API_KEY;
+  }
+  
+  // Then try localStorage (user can set this in browser)
+  const storedKey = localStorage.getItem('gemini_api_key');
+  if (storedKey) {
+    return storedKey;
+  }
+  
+  // Finally try process.env (build time)
+  if (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) {
+    return process.env.GEMINI_API_KEY;
+  }
+  
+  return '';
+};
+
+// Initialize or get Gemini Client
+const getGeminiClient = (): GoogleGenAI => {
+  const apiKey = getApiKey();
+  
+  if (!apiKey) {
+    throw new Error(
+      'Gemini API Key not found. Please set VITE_GEMINI_API_KEY environment variable or set it in the app settings.'
+    );
+  }
+  
+  if (!geminiClient) {
+    geminiClient = new GoogleGenAI({ apiKey });
+  }
+  
+  return geminiClient;
+};
+
+// Function to set API key (can be called from UI)
+export const setApiKey = (apiKey: string): void => {
+  localStorage.setItem('gemini_api_key', apiKey);
+  geminiClient = new GoogleGenAI({ apiKey });
+};
+
+// Function to check if API key is set
+export const hasApiKey = (): boolean => {
+  return getApiKey().length > 0;
+};
 
 const PROMPT = `
 Identify and extract data from this Taiwanese Uniform Invoice (統一發票).
@@ -23,6 +71,8 @@ Return strict JSON.
 
 export const extractInvoiceData = async (base64Image: string): Promise<Partial<InvoiceData>> => {
   try {
+    const ai = getGeminiClient();
+    
     // Remove data URL prefix if present for the API call (Handle various image types)
     const base64Data = base64Image.replace(/^data:image\/[a-z]+;base64,/, "");
 
