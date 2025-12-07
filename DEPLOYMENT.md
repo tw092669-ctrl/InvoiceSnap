@@ -1,5 +1,48 @@
 # Deployment Guide
 
+## 🚀 Quick Deploy to GitHub Pages
+
+### Option 1: Automatic Deployment (Recommended)
+
+The repository includes a GitHub Actions workflow that automatically deploys on every push to `main`.
+
+**Setup Steps:**
+
+1. **Enable GitHub Pages:**
+   - Go to repository Settings → Pages
+   - Under "Source", select **"GitHub Actions"**
+
+2. **Push your code:**
+   ```bash
+   git add .
+   git commit -m "Deploy to GitHub Pages"
+   git push
+   ```
+
+3. **Access your app:**
+   - URL: `https://tw092669-ctrl.github.io/InvoiceSnap/`
+   - First deployment takes 2-3 minutes
+   - Check Actions tab for deployment status
+
+### Option 2: Manual Deployment
+
+```bash
+npm run deploy:ghpages
+```
+
+This will:
+1. Build with the correct base path (`/InvoiceSnap/`)
+2. Deploy the `dist/` folder to the `gh-pages` branch
+
+**After deployment:**
+- Go to Settings → Pages
+- Select `gh-pages` branch as source
+- Your app will be live at `https://tw092669-ctrl.github.io/InvoiceSnap/`
+
+**Important**: Don't forget to set `GEMINI_API_KEY` in your environment!
+
+---
+
 ## Deploy to Vercel
 
 1. Install Vercel CLI:

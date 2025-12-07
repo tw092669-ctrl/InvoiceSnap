@@ -26,7 +26,8 @@ pnpm-debug.log*
 .env.production.local
 
 # Editor directories and files
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 .idea/
 *.suo
 *.ntvs*
@@ -38,3 +39,7 @@ pnpm-debug.log*
 *.tmp
 *.temp
 .cache/
+
+# Build files
+dist-ssr
+*.local

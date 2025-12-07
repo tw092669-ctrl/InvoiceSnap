@@ -62,6 +62,7 @@ The built files will be in the `dist/` directory.
 - **React 19.2** - UI framework
 - **TypeScript 5.8** - Type safety
 - **Vite 6.2** - Build tool
+- **Tailwind CSS 4** - Utility-first CSS framework
 - **Google Gemini AI** - OCR and data extraction
 - **Lucide React** - Icons
 - **LocalStorage** - Data persistence

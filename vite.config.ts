@@ -4,8 +4,14 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    
+    // Use /InvoiceSnap/ for GitHub Pages, / for local development
+    const base = mode === 'production' && process.env.GITHUB_PAGES === 'true' 
+      ? '/InvoiceSnap/' 
+      : '/';
+    
     return {
-      base: process.env.GITHUB_PAGES ? '/InvoiceSnap/' : '/',
+      base,
       server: {
         port: 3000,
         host: '0.0.0.0',
