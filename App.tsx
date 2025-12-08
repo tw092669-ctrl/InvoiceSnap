@@ -371,11 +371,15 @@ const App: React.FC = () => {
                 <FileText className="w-5 h-5" />
               </div>
             )}
-            <h1 className="text-xl font-bold tracking-tight text-white hidden xs:block font-mono">Invoice<span className="text-brand-400">Snap</span></h1>
-            {(view === 'edit' || view === 'settings' || view === 'data-management') && (
-              <h2 className="text-lg font-bold text-gray-200 sm:hidden">
+            {(view === 'edit' || view === 'settings' || view === 'data-management') ? (
+              <h2 className="text-lg font-bold text-gray-200">
                 {view === 'settings' ? '設定' : view === 'data-management' ? '資料管理' : '發票明細'}
               </h2>
+            ) : (
+              <h1 className="text-xl font-bold tracking-tight text-white">
+                <span className="hidden sm:inline font-mono">Invoice<span className="text-brand-400">Snap</span> - </span>
+                <span className="text-gray-100">發票管理助手</span>
+              </h1>
             )}
           </div>
           
