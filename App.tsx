@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Search, Plus, FileText, ArrowLeft, Upload, LayoutDashboard, List, Settings as SettingsIcon, ScanLine } from 'lucide-react';
+import { Search, Plus, FileText, ArrowLeft, Upload, LayoutDashboard, List, Settings as SettingsIcon, ScanLine, Edit2 } from 'lucide-react';
 import { InvoiceData, InvoiceType, createEmptyInvoice } from './types';
 import { InvoiceForm } from './components/InvoiceForm';
 import { Dashboard } from './components/Dashboard';
@@ -18,9 +18,10 @@ const App: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
+  const [editingNameId, setEditingNameId] = useState<string | null>(null);
+  const [editingNameValue, setEditingNameValue] = useState('');
   
   // Refs
-  const cameraInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
   // Load from LocalStorage
@@ -136,6 +137,14 @@ const App: React.FC = () => {
       }
   }
 
+  const handleQuickUpdateName = (id: string, newName: string) => {
+    setInvoices(prev => 
+      prev.map(inv => 
+        inv.id === id ? { ...inv, buyerName: newName } : inv
+      )
+    );
+  };
+
   // Filtering
   const filteredInvoices = invoices.filter(inv => {
     const matchesSearch = 
@@ -219,13 +228,9 @@ const App: React.FC = () => {
                 </p>
                 {!searchTerm && (
                   <div className="mt-8 flex justify-center gap-4">
-                     <Button variant="secondary" onClick={() => uploadInputRef.current?.click()}>
+                     <Button variant="primary" onClick={() => uploadInputRef.current?.click()}>
                        <Upload className="w-4 h-4 mr-2" />
-                       上傳圖片
-                     </Button>
-                     <Button variant="primary" onClick={() => cameraInputRef.current?.click()}>
-                       <Camera className="w-4 h-4 mr-2" />
-                       立即拍照
+                       上傳發票圖片
                      </Button>
                   </div>
                 )}
@@ -235,14 +240,16 @@ const App: React.FC = () => {
                 {filteredInvoices.map((inv) => (
                   <div 
                     key={inv.id} 
-                    onClick={() => handleEdit(inv)}
-                    className="group relative bg-gray-800/80 backdrop-blur-md rounded-2xl p-4 border border-gray-700/50 hover:border-brand-500/50 hover:bg-gray-800 hover:shadow-lg hover:shadow-brand-500/10 transition-all duration-300 cursor-pointer flex gap-4 overflow-hidden"
+                    className="group relative bg-gray-800/80 backdrop-blur-md rounded-2xl p-4 border border-gray-700/50 hover:border-brand-500/50 hover:bg-gray-800 hover:shadow-lg hover:shadow-brand-500/10 transition-all duration-300 flex gap-4 overflow-hidden"
                   >
                     {/* Glowing Accent on Hover */}
                     <div className="absolute inset-0 bg-gradient-to-r from-brand-500/0 via-brand-500/0 to-brand-500/0 group-hover:via-brand-500/5 transition-all duration-500 pointer-events-none" />
 
                     {/* Thumbnail */}
-                    <div className="w-24 h-24 flex-shrink-0 bg-gray-900/80 rounded-xl overflow-hidden border border-gray-700 group-hover:border-gray-600 transition-colors relative">
+                    <div 
+                      onClick={() => handleEdit(inv)}
+                      className="w-24 h-24 flex-shrink-0 bg-gray-900/80 rounded-xl overflow-hidden border border-gray-700 group-hover:border-gray-600 transition-colors relative cursor-pointer"
+                    >
                       {inv.imageUrl ? (
                         <img src={inv.imageUrl} alt="invoice" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                       ) : (
@@ -255,10 +262,53 @@ const App: React.FC = () => {
                     {/* Content */}
                     <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                       <div>
-                        <div className="flex justify-between items-start">
-                           <h3 className="text-lg font-bold text-gray-100 truncate pr-2 group-hover:text-brand-400 transition-colors">
-                             {inv.buyerName || '未命名公司'}
-                           </h3>
+                        <div className="flex justify-between items-start gap-2">
+                          {editingNameId === inv.id ? (
+                            <input
+                              type="text"
+                              value={editingNameValue}
+                              onChange={(e) => setEditingNameValue(e.target.value)}
+                              onBlur={() => {
+                                if (editingNameValue.trim()) {
+                                  handleQuickUpdateName(inv.id, editingNameValue.trim());
+                                }
+                                setEditingNameId(null);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  if (editingNameValue.trim()) {
+                                    handleQuickUpdateName(inv.id, editingNameValue.trim());
+                                  }
+                                  setEditingNameId(null);
+                                } else if (e.key === 'Escape') {
+                                  setEditingNameId(null);
+                                }
+                              }}
+                              autoFocus
+                              className="flex-1 text-lg font-bold bg-gray-900/80 text-gray-100 px-2 py-1 rounded border border-brand-500 focus:outline-none focus:border-brand-400"
+                              placeholder="輸入抬頭名稱"
+                            />
+                          ) : (
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <h3 
+                                onClick={() => handleEdit(inv)}
+                                className="text-lg font-bold text-gray-100 truncate group-hover:text-brand-400 transition-colors cursor-pointer"
+                              >
+                                {inv.buyerName || '未命名公司'}
+                              </h3>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingNameId(inv.id);
+                                  setEditingNameValue(inv.buyerName || '');
+                                }}
+                                className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-brand-400 transition-all p-1 hover:bg-gray-700/50 rounded"
+                                title="編輯名稱"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
                            <span className={`flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide border ${
                              inv.type === InvoiceType.TRIPLICATE 
                                ? 'bg-indigo-900/30 text-indigo-300 border-indigo-500/30' 
@@ -267,13 +317,19 @@ const App: React.FC = () => {
                              {inv.type === InvoiceType.TRIPLICATE ? '三聯式' : '二聯式'}
                            </span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div 
+                          onClick={() => handleEdit(inv)}
+                          className="flex items-center gap-2 mt-1 cursor-pointer"
+                        >
                             <span className="text-xs font-mono text-gray-400 bg-gray-900/50 px-1.5 py-0.5 rounded">{inv.date}</span>
                             <span className="text-xs font-mono text-gray-500">{inv.invoiceNumber}</span>
                         </div>
                       </div>
                       
-                      <div className="flex justify-between items-end mt-2">
+                      <div 
+                        onClick={() => handleEdit(inv)}
+                        className="flex justify-between items-end mt-2 cursor-pointer"
+                      >
                         <div className="text-sm text-gray-500 truncate max-w-[60%] group-hover:text-gray-400 transition-colors">
                            {inv.items?.length > 0 ? inv.items[0].description + (inv.items.length > 1 ? ` 等 ${inv.items.length} 項` : '') : '無品項'}
                         </div>
@@ -294,14 +350,6 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen text-gray-100 pb-28 font-sans selection:bg-brand-500/30">
       {/* Hidden Inputs */}
-      <input 
-        type="file" 
-        accept="image/*" 
-        capture="environment" 
-        ref={cameraInputRef} 
-        className="hidden" 
-        onChange={handleFileSelect} 
-      />
       <input 
         type="file" 
         accept="image/*" 
@@ -368,26 +416,19 @@ const App: React.FC = () => {
 
                <div className="hidden sm:flex gap-3 ml-4">
                  <Button 
-                   variant="secondary" 
+                   variant="primary" 
                    onClick={() => uploadInputRef.current?.click()}
                    isLoading={isProcessing}
-                   className="bg-gray-800/80 hover:bg-gray-700"
                  >
                    <Upload className="w-4 h-4 mr-2" />
                    上傳
                  </Button>
                  
                  <Button 
-                   variant="secondary" 
-                   onClick={() => cameraInputRef.current?.click()}
-                   isLoading={isProcessing}
+                   variant="secondary"
+                   onClick={handleManualAdd}
                    className="bg-gray-800/80 hover:bg-gray-700"
                  >
-                   <Camera className="w-4 h-4 mr-2" />
-                   拍照
-                 </Button>
-                 
-                 <Button onClick={handleManualAdd}>
                    <Plus className="w-4 h-4 mr-2" />
                    新增
                  </Button>
@@ -415,22 +456,13 @@ const App: React.FC = () => {
           <button 
             onClick={() => uploadInputRef.current?.click()}
             disabled={isProcessing}
-            className="w-14 h-14 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-600/30 flex items-center justify-center focus:outline-none disabled:opacity-75 active:scale-95 transition-all"
-            title="上傳圖片"
-          >
-             <Upload className="w-7 h-7" />
-          </button>
-
-          <button 
-            onClick={() => cameraInputRef.current?.click()}
-            disabled={isProcessing}
             className="w-16 h-16 bg-gradient-to-br from-brand-500 to-brand-600 text-white rounded-2xl shadow-2xl shadow-brand-500/40 flex items-center justify-center focus:outline-none disabled:opacity-75 disabled:cursor-wait active:scale-95 transition-all"
-            title="相機拍照"
+            title="上傳發票圖片"
           >
             {isProcessing ? (
               <div className="animate-spin h-7 w-7 border-2 border-white border-t-transparent rounded-full" />
             ) : (
-              <Camera className="w-8 h-8" />
+              <Upload className="w-8 h-8" />
             )}
           </button>
         </div>
